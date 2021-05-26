@@ -1,0 +1,249 @@
+<h2 style="float:right"><%= link_to 'Sign Out', destroy_user_session_path, method: :delete, class: 'btn btn-outline-primary' %> </h1>
+
+
+<h1 class="h3 mb-3"><%= @board.name %></h1>
+<div><%= link_to 'Add new category', new_category_path(@board), class: "btn btn-outline-primary" %></div>
+<div><h1></h2></div>
+<div class="row">
+<%@board.categories.each do |category|%>
+            <div class="col-12 col-lg-6 col-xl-3">
+                <main class="content">
+                    <div class="container p-0">
+    
+                        <div class="card card-border-primary">
+                            <div class="card-header">
+                                <h5 class="card-title"><%= category.name %></h5>
+
+                                <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">...
+                                        <span class="caret"></span></button>
+                                        <ul class="dropdown-menu">
+                                    
+                                                <li> <%= link_to 'Show Category', show_category_path(category) %></li>
+                                                <li> <%= link_to 'Edit Category', edit_category_path(category) %></li>
+                                                <li> <%= link_to 'Delete Category', delete_category_path(category), method: :delete %></li>
+                                                <hr class="rounded">
+                                        </ul>
+                                </div>
+                            </div>
+                            
+                            <% category.tasks.each do |task|%>
+                                <div class="card-body p-3">
+                                    <div class="card mb-3 bg-light">
+                                        <div class="card-body p-3">
+                                            <strong><%= task.name %></strong>
+                                            <li><%= task.description %></li>                                     
+                                            <div>
+                                                <%= link_to 'Show', show_task_path(task) %>|
+                                                <%= link_to 'Edit', edit_task_path(task) %>|
+                                                <%= link_to 'Delete', delete_task_path(task), method: :delete %>
+                                            </div>  
+                                        </div>
+                                    </div>
+                                </div>
+                            <% end %>
+                            
+                            <div><%= link_to 'Add new task', new_task_path(category), class: "btn btn-primary btn-block" %></div>
+                            
+                        </div>
+                    </div>
+                </main>
+            </div>
+    <%end%>
+    
+</div>
+
+<div><h1></h2></div>
+<div>
+  <h5><strong>Users Assigned to <%= @board.name%></strong></h5>
+        <table class="table table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Add Users
+                            <span class="caret"></span></button>
+                                <ul class="dropdown-menu">
+                                <% @users.each do |user|%>
+                                    <li><%= user.name %> </li>
+                                    <li> <%= link_to 'Select', add_user_board_path(@project, @board, user, id: @board.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                        <hr class="rounded">
+                                <%end%>
+                                </ul>
+                        </div>
+                    </th>
+
+                    <% if current_user == @board.user || current_user.is_admin == true %>
+                        <th> 
+                            <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Transfer Manager Position
+                                <span class="caret"></span></button>
+                                <ul class="dropdown-menu">
+                                      Current Manager: <%= @board.user.name%>
+                                      <hr> 
+                                    <% @users.each do |user|%>
+                                        <%if user != @board.user %>
+                                            <li><%= user.name %> </li>
+                                            <li> <%= link_to 'Select', transfer_manager_board_path(user, id: @board.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                            <hr class="rounded">
+                                        <%end%>
+                                    <%end%>
+                                </ul>
+                            </div>
+                        </th>
+                    <%end%>
+
+                </tr>
+            </thead>
+
+                
+            <tbody>
+                <%@board.assigned_users.each do |assigned_user|%>
+                    <tr>
+                        <td><%= assigned_user.name %></td>
+                        <td><%= assigned_user.email %></td>
+                        <td><%= link_to 'Remove User', remove_user_board_path(@project, @board ,assigned_user, id: @board.id, user_id: assigned_user.id), method: :post, class: "btn btn-outline-primary btn-sm"%></td>
+                    </tr>
+                <%end%>
+            </tbody>
+        
+
+        <tfoot><!-- this footnote is used to manage assigning permissions for the board -->
+
+      
+
+       <% if @project.user == current_user || @board.user == current_user || current_user.is_admin == true %>
+
+            <tr>
+                <td>PERMISSIONS</td>
+            </tr>
+            <tr>
+                <td>can edit board</td>
+                <td>
+                    <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">dropdown to add user to can edit
+                                <span class="caret"></span></button>
+                                    <ul class="dropdown-menu">
+                                    <% @users.each do |user|%>
+                                        <li><%= user.name %> </li>
+                                        <li> <%= link_to 'Select', add_user_can_edit_board_path(@project, @board, user, id: @board.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                            <hr class="rounded">
+                                    <%end%>
+                                    </ul>
+                            </div>
+                </td>
+
+                <td>
+                    <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">dropdown to remove user from can edit
+                                <span class="caret"></span></button>
+                                    <ul class="dropdown-menu">
+                                    <% @board.can_edit_users.each do |user|%>
+                                        <li><%= user.name %> </li>
+                                        <li> <%= link_to 'Select', remove_user_can_edit_board_path(@project, @board, user, id: @board.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                            <hr class="rounded">
+                                    <%end%>
+                                    </ul>
+                            </div>
+                </td>
+            </tr>
+            <tr>
+                <td>can delete board</td>
+                <td>
+                 <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">dropdown to add user to can delete
+                                <span class="caret"></span></button>
+                                    <ul class="dropdown-menu">
+                                    <% @users.each do |user|%>
+                                        <li><%= user.name %> </li>
+                                        <li> <%= link_to 'Select', add_user_can_delete_board_path(@project, @board, user, id: @board.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                            <hr class="rounded">
+                                    <%end%>
+                                    </ul>
+                            </div>
+                
+                </td>
+                <td>
+                    <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">dropdown to remove user from can delete
+                                <span class="caret"></span></button>
+                                    <ul class="dropdown-menu">
+                                    <% @board.can_delete_users.each do |user|%>
+                                        <li><%= user.name %> </li>
+                                        <li> <%= link_to 'Select', remove_user_can_delete_board_path(@project, @board, user, id: @board.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                            <hr class="rounded">
+                                    <%end%>
+                                    </ul>
+                            </div>
+                </td>
+            </tr>
+            <tr>
+                <td>can assign users to board</td>
+                <td>
+                    <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">dropdown to add user to can assign users
+                                <span class="caret"></span></button>
+                                    <ul class="dropdown-menu">
+                                    <% @users.each do |user|%>
+                                        <li><%= user.name %> </li>
+                                        <li> <%= link_to 'Select', add_user_can_assign_users_board_path(@project, @board, user, id: @board.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                            <hr class="rounded">
+                                    <%end%>
+                                    </ul>
+                            </div>
+                </td>
+                <td>
+                    <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">dropdown to remove user from can assign users
+                                <span class="caret"></span></button>
+                                    <ul class="dropdown-menu">
+                                    <% @board.can_assign_users.each do |user|%>
+                                        <li><%= user.name %> </li>
+                                        <li> <%= link_to 'Select', remove_user_can_assign_users_board_path(@project, @board, user, id: @board.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                            <hr class="rounded">
+                                    <%end%>
+                                    </ul>
+                            </div>
+                </td>
+            </tr>
+            <tr>
+                <td>can delete users from board</td>
+                <td>
+                     <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">dropdown to add user to can remove users
+                                <span class="caret"></span></button>
+                                    <ul class="dropdown-menu">
+                                    <% @users.each do |user|%>
+                                        <li><%= user.name %> </li>
+                                        <li> <%= link_to 'Select', add_user_can_remove_users_board_path(@project, @board, user, id: @board.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                            <hr class="rounded">
+                                    <%end%>
+                                    </ul>
+                            </div>
+                </td>
+                <td>
+                     <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">dropdown to remove user from can remove users
+                                <span class="caret"></span></button>
+                                    <ul class="dropdown-menu">
+                                    <% @board.can_remove_users.each do |user|%>
+                                        <li><%= user.name %> </li>
+                                        <li> <%= link_to 'Select', remove_user_can_remove_users_board_path(@project, @board, user, id: @board.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                            <hr class="rounded">
+                                    <%end%>
+                                    </ul>
+                            </div>
+                </td>
+            </tr>
+            <% end %>
+        </tfoot>
+
+        </table>
+        
+</div>
+
+<p class="mt-3">
+  <%= link_to 'Back Project Show Page', project_path(@project), class: 'btn btn-outline-primary' %>
+</p>

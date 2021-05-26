@@ -1,0 +1,90 @@
+<h1></h1>
+<!-- Displays welcome message to the current user and includes admin beside their name if they are an admin -->
+<h1 style="background-color:DimGray ; text-align:center; color: White"> Welcome <%= current_user.name%>!
+ <% if current_user.is_admin == true %> (Admin) <%end%> </h1>
+
+<h2 style="float:right"><%= link_to 'Sign Out', destroy_user_session_path, method: :delete, class: 'btn btn-outline-primary' %> </h1>
+
+<h3>Current Projects:</h1>
+
+<table class="table table-hover">
+
+  <thead class="thead-dark">
+    <tr>
+      <th>Name of Project:</th>
+      <th>Manager of Project:</th>
+      <th>Users Assigned to Project </th>
+      <th>Interact with Your Projects:</th>
+    </tr>
+  </thead>
+  
+    <tbody>
+      <!-- Stores all the project ids that the user is involved in to corresponding arrays, show the project they are involved with. -->
+        <%ids = Array.new([])%>
+        
+        <%@projects.each do |pro|  %>
+          <%if pro.assigned_users.include?(current_user) || pro.user == current_user || current_user.is_admin == true%>
+              <%ids << pro.id %>
+            <%end%>
+        <% end %>
+
+        <%@boards.each do |board|%>
+          <%project = board.project.id%>
+          <%if board.assigned_users.include?(current_user) || board.user == current_user || current_user.is_admin == true%>
+            <%ids << project %>
+          <%end%>
+        <%end%>
+        
+        <%@categories.each do |cat|%>
+          <%project = cat.board.project.id%>
+          <%if cat.assigned_users.include?(current_user) || cat.user == current_user || current_user.is_admin == true%>
+            <%ids << project %>
+          <%end%>
+        <%end%>
+
+        <%@tasks.each do |task|%>
+          <%project = task.category.board.project.id%>
+          <%if task.assigned_users.include?(current_user) || task.user == current_user || current_user.is_admin == true%>
+            <%ids << project %>
+          <%end%>
+        <%end%>
+        
+        <!-- Removes any repetetive projects from project id list -->
+        <%ids_uniq = ids.uniq%>
+        <!-- Displays project info if the user is the creator, an admin, or assigned to the project (or its contents) -->
+        <%@projects.each do |project|%>
+          <%if ids_uniq.include?(project.id)  %>
+          <tr>
+                <td><%= project.name %></td>
+                <td><%= project.user.name %></td>
+
+                <!-- Dropdown menu that displays each user assigned to the project -->
+                <td><div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Dropdown
+                      <span class="caret"></span></button>
+                      <ul class="dropdown-menu">
+                        <%project.assigned_users.each do |assigned_user|%>
+                        <li><%= assigned_user.email %> </li>
+                          <hr class="rounded">
+                        <%end%>
+                      </ul>
+                    </div> </td>
+                <td>
+                    <!-- Only allows the creator of the project or an admin to edit/destroy it -->
+                      <%= link_to 'show', project_path(project), class: 'btn btn-secondary btn-sm' %>
+                    <% if project.user == current_user || current_user.is_admin == true || project.can_edit_users.include?(current_user) == true %> 
+                  |   <%= link_to 'edit', edit_project_path(project), class: 'btn btn-secondary btn-sm' %> 
+                    <%end%>
+                    <% if project.user == current_user || current_user.is_admin == true || project.can_delete_users.include?(current_user) == true %>
+                  |    <%= link_to 'destroy', project_path(project), method: :delete, class: 'btn btn-secondary btn-sm' %>
+                    <%end%>
+                </td>
+          </tr>
+          <%end%>
+        <%end%>
+    </tbody>
+</table>
+
+<p>
+  <div><%= link_to 'New Project', new_project_path, class: "btn btn-secondary" %></div>
+</p>

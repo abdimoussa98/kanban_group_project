@@ -1,0 +1,12 @@
+<h1>New Board</h1>
+
+<%= bootstrap_form_with model: @board, method: :post, url: boards_path(project_id: @project.id), local: true do |f| %>
+
+  <%= f.text_field :name %>
+  <%= f.submit %>
+
+<% end %>
+
+<p class="mt-3">
+  <%= link_to 'Cancel', project_path(@project), class: 'btn btn-outline-secondary' %>
+</p>

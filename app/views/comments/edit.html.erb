@@ -1,0 +1,4 @@
+<%= bootstrap_form_with model: @comment, method: :patch, url: update_comment_path(@comment, @task), local: true do |f| %>
+  <%= f.text_area :comment %>
+  <%= f.submit %>
+<% end %>

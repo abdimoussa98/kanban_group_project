@@ -1,0 +1,12 @@
+<h1>Edit Board</h1>
+
+<%= bootstrap_form_with model: @board, method: :patch, url: board_path(@project, @board, project_id: @project.id, board_id: @board.id), local: true do |f| %>
+
+  <%= f.text_field :name %>
+  <%= f.submit %>
+
+<% end %>
+
+<p class="mt-3">
+  <%= link_to 'Cancel', project_path(@project), class: 'btn btn-outline-secondary' %>
+</p>

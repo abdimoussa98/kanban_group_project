@@ -1,0 +1,216 @@
+<h1>Category: <%=@category.name%></h1>
+<p><p>
+<table class="table" style="table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>Task</th>
+            <th>Due Date</th>
+            <th>Owner</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    <%@category.tasks.each do |task|%>
+        <tr>
+            <td><%=task.name%></td>
+            <td><%=task.due_date%></td>
+            <td><%=task.user.name%></td>
+            <td>
+                <%=link_to 'Show', show_task_path(task)%> | 
+                <%=link_to 'Edit', edit_task_path(task)%> | 
+                <%=link_to 'Delete', delete_task_path(task), method: :delete%>
+            </td>
+        </tr>
+    <%end%>
+    </tbody>
+</table>
+
+
+<div><h1></h2></div>
+<div>
+  <h5><strong>Users Assigned to <%= @category.name%></strong></h5>
+        <table class="table table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Add Users
+                            <span class="caret"></span></button>
+                                <ul class="dropdown-menu">
+                                <% @users.each do |user|%>
+                                    <li><%= user.name %> </li>
+                                    <li> <%= link_to 'Select', add_user_category_path(@category, user, id: @category.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                        <hr class="rounded">
+                                <%end%>
+                                </ul>
+                        </div>
+                          <% if current_user == @category.user || current_user.is_admin == true %>
+                        <th> 
+                            <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Transfer Manager Position
+                                <span class="caret"></span></button>
+                                <ul class="dropdown-menu">
+                                    Current Manager: <%= @category.user.name%>
+                                      <hr>
+                                    <% @users.each do |user|%>
+                                        
+                                            <li><%= user.name %> </li>
+                                            <li> <%= link_to 'Select', transfer_manager_cat_path(user, id: @category.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                            <hr class="rounded">
+                                        
+                                    <%end%>
+                                </ul>
+                            </div>
+                        </th>
+            <%end%>
+                    </th>
+                </tr>
+            </thead>
+
+
+            <tbody>
+                <%@category.assigned_users.each do |assigned_user|%>
+                    <tr>
+                        <td><%= assigned_user.name %></td>
+                        <td><%= assigned_user.email %></td>
+                        <td><%= link_to 'Remove User', remove_user_category_path(@category, assigned_user, id: @category.id, user_id: assigned_user.id), method: :post, class: "btn btn-outline-primary btn-sm"%></td>
+                    </tr>
+                <%end%>
+            </tbody>
+
+            <tfoot><!-- this footnote is used to manage assigning permissions for the category -->
+       <% if @category.user == current_user || current_user.is_admin == true || @board.user == current_user || @project.user == current_user %>
+            <tr>
+                <td>PERMISSIONS</td>
+            </tr>
+            <tr>
+                <td>can edit category</td>
+                <td>
+                    <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">dropdown to add user to can edit
+                                <span class="caret"></span></button>
+                                    <ul class="dropdown-menu">
+                                    <% @users.each do |user|%>
+                                        <li><%= user.name %> </li>
+                                        <li> <%= link_to 'Select', add_user_can_edit_category_path(@category, user, id: @category.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                            <hr class="rounded">
+                                    <%end%>
+                                    </ul>
+                            </div>
+                </td>
+
+                <td>
+                    <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">dropdown to remove user from can edit
+                                <span class="caret"></span></button>
+                                    <ul class="dropdown-menu">
+                                    <% @category.can_edit_users.each do |user|%>
+                                        <li><%= user.name %> </li>
+                                        <li> <%= link_to 'Select', remove_user_can_edit_category_path(@category, user, id: @category.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                            <hr class="rounded">
+                                    <%end%>
+                                    </ul>
+                            </div>
+                </td>
+            </tr>
+            <tr>
+                <td>can delete category</td>
+                <td>
+                 <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">dropdown to add user to can delete
+                                <span class="caret"></span></button>
+                                    <ul class="dropdown-menu">
+                                    <% @users.each do |user|%>
+                                        <li><%= user.name %> </li>
+                                        <li> <%= link_to 'Select', add_user_can_delete_category_path(@category, user, id: @category.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                            <hr class="rounded">
+                                    <%end%>
+                                    </ul>
+                            </div>
+                
+                </td>
+                <td>
+                    <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">dropdown to remove user from can delete
+                                <span class="caret"></span></button>
+                                    <ul class="dropdown-menu">
+                                    <% @category.can_delete_users.each do |user|%>
+                                        <li><%= user.name %> </li>
+                                        <li> <%= link_to 'Select', remove_user_can_delete_category_path(@category, user, id: @category.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                            <hr class="rounded">
+                                    <%end%>
+                                    </ul>
+                            </div>
+                </td>
+            </tr>
+            <tr>
+                <td>can assign users to category</td>
+                <td>
+                    <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">dropdown to add user to can assign users
+                                <span class="caret"></span></button>
+                                    <ul class="dropdown-menu">
+                                    <% @users.each do |user|%>
+                                        <li><%= user.name %> </li>
+                                        <li> <%= link_to 'Select', add_user_can_assign_users_category_path(@category, user, id: @category.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                            <hr class="rounded">
+                                    <%end%>
+                                    </ul>
+                            </div>
+                </td>
+                <td>
+                    <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">dropdown to remove user from can assign users
+                                <span class="caret"></span></button>
+                                    <ul class="dropdown-menu">
+                                    <% @category.can_assign_users.each do |user|%>
+                                        <li><%= user.name %> </li>
+                                        <li> <%= link_to 'Select', remove_user_can_assign_users_category_path(@category, user, id: @category.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                            <hr class="rounded">
+                                    <%end%>
+                                    </ul>
+                            </div>
+                </td>
+            </tr>
+            <tr>
+                <td>can delete users from category</td>
+                <td>
+                     <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">dropdown to add user to can remove users
+                                <span class="caret"></span></button>
+                                    <ul class="dropdown-menu">
+                                    <% @users.each do |user|%>
+                                        <li><%= user.name %> </li>
+                                        <li> <%= link_to 'Select', add_user_can_remove_users_category_path(@category, user, id: @category.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                            <hr class="rounded">
+                                    <%end%>
+                                    </ul>
+                            </div>
+                </td>
+                <td>
+                     <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">dropdown to remove user from can remove users
+                                <span class="caret"></span></button>
+                                    <ul class="dropdown-menu">
+                                    <% @category.can_remove_users.each do |user|%>
+                                        <li><%= user.name %> </li>
+                                        <li> <%= link_to 'Select', remove_user_can_remove_users_category_path(@category, user, id: @category.id, user_id: user.id), method: :post, class: "btn btn-outline-primary btn-sm"%> </li>
+                                            <hr class="rounded">
+                                    <%end%>
+                                    </ul>
+                            </div>
+                </td>
+            </tr>
+            <% end %>
+        </tfoot>
+
+        </table>
+
+</div>
+
+<p class="mt-3">
+  <%= link_to 'Back', board_path(@category.board.project, @category.board), class: 'btn btn-primary' %>
+  <%= link_to 'New Task', new_task_path(@category), class: 'btn btn-primary' %>
+</p>
